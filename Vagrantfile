@@ -17,6 +17,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     node.vm.network :private_network, ip: "10.128.0.5"
 
+    node.vm.provision "shell" do |shell|
+      shell.inline = "apt-get install -y python"
+    end
+
     node.vm.provision "ansible" do |ansible|
       ansible.playbook = "playbook.yaml"
     end

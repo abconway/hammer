@@ -1,0 +1,56 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+  - name: install packages
+    apt: name={{item}} state=latest update_cache=yes
+    with_items:
+      - build-essential
+      - python-dev
+      - python-pip
+      - nginx
+      - vim
+      - libreadline-dev
+      - htop
+      - tree
+      - nodejs
+      - npm
+  - name: symlink node to nodejs
+    file:
+      src: /usr/bin/nodejs
+      dest: /usr/bin/node
+      state: link
+      owner: root
+      group: root
+  - name: install virtualenv
+    pip:
+      name: virtualenv
+  - name: create working directory
+    file:
+      path: /etc/site
+      state: directory
+      owner: ubuntu
+      group: ubuntu
+      mode: 0755
+  - name: clone the git repo
+    git:
+      repo: 'https://github.com/abconway/emilyjewell.com.git'
+      dest: /etc/site/emilyjewell.com
+  - name: setup the django project
+    make:
+      chdir: /etc/site/emilyjewell.com
+      target: deploy
+  - name: configure emilyjewell.com in nginx sites-available
+    template:
+      src: templates/nginx/emilyjewell.conf
+      dest: /etc/nginx/sites-available/emilyjewell.conf
+      owner: root
+      group: root
+      mode: 0644
+  - name: symlink emilyjewell.com nginx conf to sites-enabled
+    file:
+      src: /etc/nginx/sites-available/emilyjewell.conf
+      dest: /etc/nginx/sites-enabled/emilyjewell.conf
+      state: link
+      owner: root
+      group: root
