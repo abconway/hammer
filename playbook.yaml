@@ -52,6 +52,8 @@
     make:
       chdir: /opt/sites/emilyjewell.com
       target: deploy
+    environment:
+      DJANGO_SETTINGS_MODULE: 'emilyjewell.settings.DEVELOPMENT'
   - name: remove default nginx conf in sites-available
     file:
       path: /etc/nginx/sites-available/default
