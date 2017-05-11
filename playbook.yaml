@@ -25,20 +25,24 @@
   - name: install virtualenv
     pip:
       name: virtualenv
+  - name: install uwsgi (system-wide for emperor mode)
+    pip:
+      name: uwsgi
   - name: create working directory
     file:
-      path: /etc/site
+      path: /opt/sites
       state: directory
-      owner: ubuntu
-      group: ubuntu
+      owner: www-data
+      group: www-data
       mode: 0755
+      recurse: yes
   - name: clone the git repo
     git:
       repo: 'https://github.com/abconway/emilyjewell.com.git'
-      dest: /etc/site/emilyjewell.com
+      dest: /opt/sites/emilyjewell.com
   - name: setup the django project
     make:
-      chdir: /etc/site/emilyjewell.com
+      chdir: /opt/sites/emilyjewell.com
       target: deploy
   - name: configure emilyjewell.com in nginx sites-available
     template:
@@ -54,3 +58,25 @@
       state: link
       owner: root
       group: root
+  - name: make the uwsgi conf directories
+    file:
+      path: /etc/uwsgi/sites
+      state: directory
+      owner: root
+      group: root
+      mode: 0644
+      recurse: yes
+  - name: symlink emilyjewell_uwsgi.ini to /etc/uwsgi/sites
+    file:
+      src: /opt/sites/emilyjewell.com/emilyjewell_uwsgi.ini
+      dest: /etc/uwsgi/sites/emilyjewell_uwsgi.ini
+      state: link
+      owner: root
+      group: root
+  - name: configure uwsgi systemd unit file
+    template:
+      src: templates/uwsgi/uwsgi.service
+      dest: /etc/systemd/system/uwsgi.service
+      owner: root
+      group: root
+      mode: 0644

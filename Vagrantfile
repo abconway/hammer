@@ -5,23 +5,23 @@ VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.ssh.forward_agent = true
 
-  config.vm.define :node do |node|
-    node.vm.provider :virtualbox do |v|
+  config.vm.define :webserver do |webserver|
+    webserver.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--cpus", 1]
       v.customize ["modifyvm", :id, "--memory", 1024]
-      v.customize ["modifyvm", :id, "--name", "node"]
+      v.customize ["modifyvm", :id, "--name", "webserver"]
     end
 
-    node.vm.box = "ubuntu/xenial64"
-    node.vm.hostname = "node"
+    webserver.vm.box = "ubuntu/xenial64"
+    webserver.vm.hostname = "webserver"
 
-    node.vm.network :private_network, ip: "10.128.0.5"
+    webserver.vm.network :private_network, ip: "10.128.0.5"
 
-    node.vm.provision "shell" do |shell|
+    webserver.vm.provision "shell" do |shell|
       shell.inline = "apt-get install -y python"
     end
 
-    node.vm.provision "ansible" do |ansible|
+    webserver.vm.provision "ansible" do |ansible|
       ansible.playbook = "playbook.yaml"
     end
   end
