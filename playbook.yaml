@@ -6,16 +6,16 @@
     apt: name={{item}} state=latest update_cache=yes
     with_items:
       - build-essential
-      - python-dev
-      - python-pip
-      - nginx
-      - vim
-      - libreadline-dev
       - htop
-      - tree
+      - libreadline-dev
+      - nginx
       - nodejs
       - npm
-  - name: symlink node to nodejs
+      - python-dev
+      - python-pip
+      - tree
+      - vim
+  - name: symlink node to nodejs (required for webpack to work correctly)
     file:
       src: /usr/bin/nodejs
       dest: /usr/bin/node
@@ -28,7 +28,7 @@
   - name: install uwsgi (system-wide for emperor mode)
     pip:
       name: uwsgi
-  - name: create working directory
+  - name: create deployment directory
     file:
       path: /opt/sites
       state: directory
@@ -36,11 +36,11 @@
       group: www-data
       mode: 0755
       recurse: yes
-  - name: clone the git repo
+  - name: clone the emilyjewll.com git repo
     git:
       repo: 'https://github.com/abconway/emilyjewell.com.git'
       dest: /opt/sites/emilyjewell.com
-  - name: setup the django project
+  - name: Install, migrate, and build assets
     make:
       chdir: /opt/sites/emilyjewell.com
       target: deploy
