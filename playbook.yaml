@@ -80,3 +80,27 @@
       owner: root
       group: root
       mode: 0644
+  - name: restart uwsgi service
+    systemd:
+      name: uwsgi
+      state: restarted
+  - name: restart nginx service
+    systemd:
+      name: nginx
+      state: restarted
+  - name: make sure uwsgi starts on boot
+    file:
+      src: /etc/systemd/system/uwsgi.service
+      dest: /etc/systemd/system/multi-user.target.wants/uwsgi.service
+      state: link
+      owner: root
+      group: root
+      mode: 0777
+  - name: make sure nginx starts on boot
+    file:
+      src: /lib/systemd/system/nginx.service
+      dest: /etc/systemd/system/multi-user.target.wants/nginx.service
+      state: link
+      owner: root
+      group: root
+      mode: 0777
