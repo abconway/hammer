@@ -28,22 +28,38 @@
   - name: install uwsgi (system-wide for emperor mode)
     pip:
       name: uwsgi
+  - name: create uwsgi logging directory
+    file:
+      path: /var/log/uwsgi
+      state: directory
+      owner: root
+      group: root
+      mode: 0644
   - name: create deployment directory
     file:
       path: /opt/sites
       state: directory
-      owner: www-data
-      group: www-data
-      mode: 0755
+      owner: root
+      group: root
+      mode: 0644
       recurse: yes
   - name: clone the emilyjewll.com git repo
     git:
       repo: 'https://github.com/abconway/emilyjewell.com.git'
       dest: /opt/sites/emilyjewell.com
+      force: yes
   - name: Install, migrate, and build assets
     make:
       chdir: /opt/sites/emilyjewell.com
       target: deploy
+  - name: remove default nginx conf in sites-available
+    file:
+      path: /etc/nginx/sites-available/default
+      state: absent
+  - name: remove default nginx conf symlink in sites-enabled
+    file:
+      path: /etc/nginx/sites-enabled/default
+      state: absent
   - name: configure emilyjewell.com in nginx sites-available
     template:
       src: templates/nginx/emilyjewell.conf
